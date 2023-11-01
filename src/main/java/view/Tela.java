@@ -19,7 +19,11 @@ import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -300,8 +304,10 @@ public class Tela extends JFrame {
 		if (!Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$").matcher(txtEmail.getText().toString()).matches()) {
 			throw new Exception("Insira um email valido");
 		}
-		if (!Pattern.compile("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$").matcher(txtDataNascimento.getText().toString()).matches()) {
-			throw new Exception("Insira uma data valida");
+		try {
+			getData();
+		}catch (Exception e) {
+			throw new Exception("Insira uma data válida no seguinte formado: 00/00/0000");
 		}
 		if (txtEndereco.getText().equals("")) {
 			throw new Exception("Insira um endereço");
@@ -311,6 +317,21 @@ public class Tela extends JFrame {
 			throw new Exception("Selecione um periodo valido");
 		}
 		return true;
-		
+	}
+	
+	public void getData() throws Exception {
+		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		format.setLenient(false);
+		String dataInput = txtDataNascimento.getText();
+		try {
+			Date data = format.parse(dataInput);
+			Date now = new Date();
+			if(data.after(now)) {
+				throw new Exception();
+			}
+			
+		} catch (Exception e) {
+			throw new Exception();
+		}
 	}
 }
