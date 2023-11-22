@@ -1,9 +1,9 @@
 package dao;
 
+import java.security.Identity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.tree.DefaultTreeCellEditor.EditorContainer;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -58,7 +58,7 @@ public class AlunoDAO {
 			while (cursor.hasNext()) {
 				Document document = cursor.next();
 				Aluno al = new Aluno();
-				al.setRa(document.getInteger("ra"));
+				al.setRa(document.getString("ra"));
 				al.setNome(document.getString("nome"));
 				al.setEmail(document.getString("email"));
 				al.setDataNascimento(document.getString("data_nascimento"));
@@ -80,11 +80,21 @@ public class AlunoDAO {
 		try {
 			Document query =  new Document().append("ra", aluno.getRa());
 			List<Bson> updateList = new ArrayList<>();
-				updateList.add(Updates.set("nome", aluno.getNome()));
-			    updateList.add(Updates.set("email", aluno.getEmail()));
-			    updateList.add(Updates.set("data_nascimento", aluno.getDataNascimento()));
-			    updateList.add(Updates.set("endereco", aluno.getEndereco()));
-			    updateList.add(Updates.set("periodo", aluno.getPeriodo()));
+			if(!aluno.getNome().isEmpty()) {
+				updateList.add(Updates.set("nome", aluno.getNome()));				
+			}
+			if(!aluno.getEmail().isEmpty()) {
+				updateList.add(Updates.set("email", aluno.getEmail()));
+			}
+			if(!aluno.getDataNascimento().isEmpty()) {
+				updateList.add(Updates.set("data_nascimento", aluno.getDataNascimento()));				
+			}
+			if(!aluno.getEndereco().isEmpty()) {
+				updateList.add(Updates.set("endereco", aluno.getEndereco()));				
+			}
+			if(!aluno.getPeriodo().equals("Selecione o periodo")) {
+				updateList.add(Updates.set("periodo", aluno.getPeriodo()));				
+			}
 
 			Bson updates = Updates.combine(updateList);
 			
@@ -95,7 +105,7 @@ public class AlunoDAO {
 	}
 	
 	public void excluir(Aluno aluno) throws Exception {
-		if (aluno.getRa() < 1) {
+		if (aluno.getRa().matches(".*[^0-9].*")) {
 			throw new Exception("Ra inválido");
 		}
 		try {
@@ -109,8 +119,8 @@ public class AlunoDAO {
 		}
 	}
 	
-	public Aluno consultar(int ra) throws Exception {
-		if (ra < 1) {
+	public Aluno consultar(String ra) throws Exception {
+		if (ra.matches(".*[^0-9].*")) {
 			throw new Exception("Ra inválido");
 		}
 		try {
@@ -123,7 +133,7 @@ public class AlunoDAO {
 			if (document == null) {
 				throw new Exception("Aluno não encontrado");
 			}
-			al.setRa(document.getInteger("ra"));
+			al.setRa(document.getString("ra"));
 			al.setNome(document.getString("nome"));
 			al.setEmail(document.getString("email"));
 			al.setDataNascimento(document.getString("data_nascimento"));

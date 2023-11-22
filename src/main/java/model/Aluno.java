@@ -1,18 +1,19 @@
 package model;
 
+
 public class Aluno {
-	private int ra;
+	private String ra;
 	private String nome;
 	private String email;
 	private String dataNascimento;
 	private String endereco;
 	private String  periodo;
 	
-	public int getRa() {
+	public String getRa() {
 		return ra;
 	}
 	
-	public void setRa(int ra) {
+	public void setRa(String ra) {
 		this.ra = ra;
 	}
 	
@@ -59,7 +60,7 @@ public class Aluno {
 	public Aluno() {
 	}
 	
-	public Aluno(int ra, String nome, String email, String dataNascimento, String endereco, String periodo) {
+	public Aluno(String ra, String nome, String email, String dataNascimento, String endereco, String periodo) {
 		this.ra = ra;
 		this.nome = nome;
 		this.email = email;

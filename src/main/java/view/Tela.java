@@ -9,6 +9,8 @@ import javax.swing.border.EmptyBorder;
 import dao.AlunoDAO;
 import model.Aluno;
 
+import java.util.Date;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -21,9 +23,9 @@ import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -167,13 +169,13 @@ public class Tela extends JFrame {
 				Aluno aluno = new Aluno();
 				boolean valid = false;
 				try {
-					valid = getDados();
+					valid = getDados(false);
 				} catch (Exception e1) {
 					JOptionPane.showMessageDialog(null, e1.getMessage());
 					return;
 				}
 				if (valid) {
-					aluno.setRa(Integer.parseInt(txtRa.getText().toString()));
+					aluno.setRa(txtRa.getText().toString());
 					aluno.setNome(txtNome.getText().toString());
 					aluno.setEmail(txtEmail.getText().toString());
 					aluno.setDataNascimento(txtDataNascimento.getText().toString());
@@ -217,13 +219,13 @@ public class Tela extends JFrame {
 				Aluno aluno = new Aluno();
 				boolean valid = false;
 				try {
-					valid = getDados();
+					valid = getDados(true);
 				} catch (Exception e1) {
 					JOptionPane.showMessageDialog(null, e1.getMessage());
 					return;
 				}
 				if (valid) {
-					aluno.setRa(Integer.parseInt(txtRa.getText().toString()));
+					aluno.setRa(txtRa.getText().toString());
 					aluno.setNome(txtNome.getText().toString());
 					aluno.setEmail(txtEmail.getText().toString());
 					aluno.setDataNascimento(txtDataNascimento.getText().toString());
@@ -247,9 +249,9 @@ public class Tela extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Aluno aluno = new Aluno();
 				try {
-					aluno.setRa(Integer.parseInt(txtRa.getText()));
+					aluno.setRa(txtRa.getText());
 				}catch (Exception err) {
-					JOptionPane.showMessageDialog(null, "RA deve ser um numero inteiro de até 10 digitos");
+					JOptionPane.showMessageDialog(null, "RA deve ser um numero");
 					return;
 				}
 				try {
@@ -269,14 +271,14 @@ public class Tela extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Aluno aluno = new Aluno();
 				try {
-					aluno.setRa(Integer.parseInt(txtRa.getText()));
+					aluno.setRa(txtRa.getText());
 				}catch (Exception err) {
-					JOptionPane.showMessageDialog(null, "RA deve ser um numero inteiro de até 10 digitos");
+					JOptionPane.showMessageDialog(null, "RA deve ser um numero");
 					return;
 				}
 				try {
 					AlunoDAO dao = new AlunoDAO();
-					aluno = dao.consultar(Integer.parseInt(txtRa.getText().toString()));
+					aluno = dao.consultar(txtRa.getText().toString());
 					txtNome.setText(aluno.getNome());
 					txtEmail.setText(aluno.getEmail());
 					txtDataNascimento.setText(aluno.getDataNascimento());
@@ -291,16 +293,41 @@ public class Tela extends JFrame {
 		contentPane.add(btnConsultar);
 	}
 	
-	public  boolean getDados() throws Exception {
+	public  boolean getDados(boolean att) throws Exception {
+		if(att) {
+			Aluno aluno = new Aluno();
+			try {
+				Integer.parseInt(txtRa.getText().toString());
+			}catch (Exception err) {
+				throw new Exception("RA deve ser um numero");
+			}
+			if (!txtNome.getText().matches("^[\\p{L}~`,^ ]+$") && !txtNome.getText().isEmpty()) {
+				throw new Exception("Nome deve ser inteiramente de caracteres ");
+			}
+			
+			if (!Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$").matcher(txtEmail.getText().toString()).matches() && !txtEmail.getText().isEmpty()) {
+				throw new Exception("Insira um email valido");
+			}
+			try {
+				if(!txtDataNascimento.getText().isEmpty()) 
+					getData();
+			}catch (Exception e) {
+				throw new Exception("Insira uma data válida no seguinte formado: 00/00/0000");
+			}
+			
+
+			return true;
+		}
 		Aluno aluno = new Aluno();
 		try {
 			Integer.parseInt(txtRa.getText().toString());
 		}catch (Exception err) {
-			throw new Exception("RA deve ser um numero inteiro de até 10 digitos e maior que 0");
+			throw new Exception("RA deve ser um numero");
 		}
-		if (!txtNome.getText().matches("^[a-zA-Z]+$")) {
+		if (!txtNome.getText().matches("^[\\p{L}~`,^ ]+$")) {
 			throw new Exception("Nome deve ser inteiramente de caracteres ");
 		}
+		
 		if (!Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$").matcher(txtEmail.getText().toString()).matches()) {
 			throw new Exception("Insira um email valido");
 		}
@@ -317,8 +344,8 @@ public class Tela extends JFrame {
 			throw new Exception("Selecione um periodo valido");
 		}
 		return true;
+		
 	}
-	
 	public void getData() throws Exception {
 		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		format.setLenient(false);
